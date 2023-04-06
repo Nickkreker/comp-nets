@@ -5,8 +5,17 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        var client = new FtpClient("127.0.0.1", 21);
-        client.authorize("TestUser", "1234");
+        if (args.length != 4) {
+            System.out.println("[ERROR] Wrong number of args. Specify [host] [port] [user] [password]");
+            return;
+        }
+
+        var host = args[0];
+        var port = Integer.parseInt(args[1]);
+        var user = args[2];
+        var password = args[3];
+        var client = new FtpClient(host, port);
+        client.authorize(user, password);
 
         showHelp();
         Scanner scanner = new Scanner(System.in);
