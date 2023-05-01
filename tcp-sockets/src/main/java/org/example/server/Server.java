@@ -23,8 +23,11 @@ public class Server {
     }
 
     public void serve() throws IOException {
+        System.out.println("Сервер готов принимать соединения");
         while (true) {
             var conn = socket.accept();
+            System.out.println(MessageFormat.format("Запрос от {0}:{1}",
+                    conn.getInetAddress().getHostAddress(), conn.getPort()));
             threadPool.execute(() -> {
                 try {
                     handleConnection(conn);
@@ -36,8 +39,8 @@ public class Server {
     private void handleConnection(Socket connection) throws IOException {
         try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             var inBody = false;
-            while (reader.ready()) {
-                String line = reader.readLine();
+            var line = "";
+            while ((line = reader.readLine()) != null) {
                 if (inBody) {
                     var path = Paths.get(line);
                     String response;
