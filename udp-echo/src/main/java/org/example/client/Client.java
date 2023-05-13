@@ -30,7 +30,7 @@ public class Client {
     public void sendRequests() throws IOException {
         var bil = 1000000000.0;
         var successfulResponses = 0;
-        for (int i = 1; i <= 10; ++i) {
+        for (int i = 1;; i += 1) {
             var packetSendTime = LocalDateTime.now();
             var reqMsg = MessageFormat.format(data, i, packetSendTime).getBytes();
             var req = new DatagramPacket(reqMsg, 0, reqMsg.length, InetAddress.getByName(serverHost), serverPort);
@@ -55,6 +55,11 @@ public class Client {
                 System.out.println("Request timed out");
             }
             socket.setSoTimeout(0);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
