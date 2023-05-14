@@ -2,6 +2,7 @@ package org.example;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -15,22 +16,21 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class Server {
     private final ServerSocket socket;
     private final Path pathToLogs;
-    private final Path pathToCache;
-    private final Map<String, Path> urlToPath;
+    private String[] blacklist = {};
 
     public Server() throws IOException {
         var propertiesFile = Files.newInputStream(Paths.get("src/main/resources/config.properties"));
@@ -40,16 +40,12 @@ public class Server {
         var port = Integer.parseInt(properties.getProperty("proxy.port"));
         socket = new ServerSocket(port);
         pathToLogs = Paths.get(properties.getProperty("proxy.logs"));
-        pathToCache = Paths.get(properties.getProperty("proxy.cache"));
-
-        urlToPath = new HashMap<>();
-
-        if (Files.notExists(pathToCache)) {
-            Files.createDirectories(pathToCache);
+        if (properties.getProperty("proxy.blacklist") != null) {
+            blacklist = properties.getProperty("proxy.blacklist").split(",");
         }
 
-        if (Files.notExists(this.pathToLogs)) {
-            Files.createFile(this.pathToLogs);
+        if (Files.notExists(pathToLogs)) {
+            Files.createFile(pathToLogs);
         }
     }
 
@@ -58,20 +54,29 @@ public class Server {
             var connFrom = socket.accept();
 
             var request = getOkClientRequest(connFrom);
-            var client = new OkHttpClient();
-            var call = client.newCall(request);
-            var response = call.execute();
+            Response response = null;
+            var inBlacklist = Arrays.stream(blacklist)
+                    .anyMatch(url -> url.equals(request.url().host()) || url.equals(request.url().toString()));
+            if (inBlacklist) {
+                logResponse(request.url().toString(), 403);
+                sendForbiddenResponse(connFrom);
+            } else {
+                var client = new OkHttpClient.Builder()
+                        .followRedirects(true)
+                        .build();
+                var call = client.newCall(request);
+                response = call.execute();
 
-            logResponse(request.url().toString(), response.code());
-
-            sendResponse(connFrom, response);
+                logResponse(request.url().toString(), response.code());
+                sendResponse(connFrom, response);
+            }
             connFrom.close();
         }
     }
 
     private void logResponse(String url, int code) throws IOException {
         var logMsg = MessageFormat.format("timestamp:{0},url:{1},code:{2}{3}", LocalDateTime.now(), url, code, System.lineSeparator());
-        Files.write(pathToLogs, logMsg.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        Files.writeString(pathToLogs, logMsg, StandardOpenOption.APPEND);
     }
 
     private Request getOkClientRequest(Socket connection) throws IOException {
@@ -128,9 +133,21 @@ public class Server {
         };
     }
 
+    private void sendForbiddenResponse(Socket connection) throws IOException {
+        var writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+        writer.write("HTTP/1.1 403 Forbidden\r\n");
+        writer.write(MessageFormat.format("Date: {0}\r\n",
+                LocalDateTime.now()
+                        .atOffset(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.RFC_1123_DATE_TIME)
+                )
+        );
+        writer.flush();
+    }
+
     private void sendResponse(Socket connection, Response response) throws IOException {
         var writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-        writer.write(MessageFormat.format("{0} {1} {2}\r\n",response.protocol().toString(), response.code(), response.message()));
+        writer.write(MessageFormat.format("{0} {1} {2}\r\n",resolveProtocol(response.protocol()), response.code(), response.message()));
         for (var header : response.headers().names()) {
             writer.write(header + ": ");
             var values = response.headers().values(header);
@@ -145,5 +162,13 @@ public class Server {
         writer.write("\r\n");
         writer.flush();
         response.body().byteStream().transferTo(connection.getOutputStream());
+    }
+
+    private String resolveProtocol(Protocol protocol) {
+        return switch (protocol.toString()) {
+            case "h2" -> "HTTP/2";
+            case "http/1.1" -> "HTTP/1.1";
+            default -> throw new IllegalStateException("Unexpected value: " + protocol.toString());
+        };
     }
 }
