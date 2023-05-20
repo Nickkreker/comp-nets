@@ -26,3 +26,9 @@
 ```bash
 ./mvnw -q exec:java -Dexec.mainClass="org.example.throughput.udp.Client"
 ```
+
+## Транслятор портов
+Запуск транслятора:
+```bash
+./mvnw -q exec:java -Dexec.mainClass="org.example.forwarder.Main" -Dexec.args="forwardes.csv"
+```
