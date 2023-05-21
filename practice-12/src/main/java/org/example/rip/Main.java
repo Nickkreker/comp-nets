@@ -32,13 +32,7 @@ public class Main {
         }
 
         for (var node: nodes) {
-            System.out.printf("Final state of router %s table:\n", node.getIp());
-            System.out.println("[Source IP]\t\t[Destination IP]\t[Next Hop]\t\t[Metric]");
-            for (var entry: node.getRoutingTable().getEntries()) {
-                var routingEntry = entry.getValue();
-                System.out.printf("%s\t\t%s\t\t\t%s\t\t\t%d\n", node.getIp(), routingEntry.getDestinationIP(), routingEntry.getNextHop(), routingEntry.getMetric());
-            }
-            System.out.println("");
+            logger.writeFinalState(node.getIp(), node.getRoutingTable());
         }
     }
 
