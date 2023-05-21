@@ -1,4 +1,4 @@
-package org.example.smtp;
+package org.example.mail.smtp;
 
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;

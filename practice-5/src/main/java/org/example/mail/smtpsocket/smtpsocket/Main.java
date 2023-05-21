@@ -1,4 +1,4 @@
-package org.example.smtpsocket;
+package org.example.mail.smtpsocket.smtpsocket;
 
 import java.io.IOException;
 import java.nio.file.Paths;
