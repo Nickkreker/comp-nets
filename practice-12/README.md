@@ -4,6 +4,13 @@
 ./mvnw clean compile
 ```
 
+## RIP
+Запуск симуляции:
+```bash
+./mvnw -q exec:java -Dexec.mainClass="org.example.rip.Main"
+```
+
+
 ## Скорость передачи
 ### TCP
 Запуск сервера:
