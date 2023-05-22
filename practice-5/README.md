@@ -34,3 +34,14 @@ docker run -d -p 1080:1080 -p 1025:1025 --name mailcatcher schickling/mailcatche
 ```bash
 ./mvnw -q exec:java -Dexec.mainClass="org.example.rpc.server.Main" -Dexec.args="8080"
 ```
+
+## Широковещательная рассылка через UDP
+Запуск клиента:
+```bash
+./mvnw -q exec:java -Dexec.mainClass="org.example.broadcast.Client"
+```
+
+Запуск сервера:
+```bash
+./mvnw -q exec:java -Dexec.mainClass="org.example.broadcast.Server"
+```
