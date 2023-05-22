@@ -1,4 +1,4 @@
-package org.example.mail.smtpsocket.smtpsocket;
+package org.example.mail.smtpsocket;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

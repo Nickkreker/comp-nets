@@ -21,7 +21,7 @@ docker run -d -p 1080:1080 -p 1025:1025 --name mailcatcher schickling/mailcatche
 
 ### Решение на сокетах
 ```bash
-./mvnw -q exec:java -Dexec.mainClass="org.example.mail.smtpsocket.smtpsocket.Main"
+./mvnw -q exec:java -Dexec.mainClass="org.example.mail.smtpsocket.Main"
 ```
 
 ## Удаленный запуск команд
