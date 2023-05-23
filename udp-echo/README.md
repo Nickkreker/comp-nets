@@ -4,12 +4,14 @@
 ./mvnw clean compile
 ```
 
-Запуск сервера:
+**Запуск сервера:**
 ```bash
 ./mvnw -q exec:java -Dexec.mainClass="org.example.server.Main" -Dexec.args="порт_сервера waitPeriod"
 ```
 
-Запуск клиента:
+`waitPeriod` указывается в миллисекундах
+
+**Запуск клиента:**
 ```bash
 ./mvnw -q exec:java -Dexec.mainClass="org.example.client.Main" -Dexec.args="ip_сервера порт_сервера"
 ```
