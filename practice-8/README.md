@@ -14,5 +14,5 @@
 
 **Запуск сервера:**
 ```bash
-./mvnw -q exec:java -Dexec.mainClass="org.example.rdt.client.ServerMain"
+./mvnw -q exec:java -Dexec.mainClass="org.example.rdt.server.ServerMain"
 ```
