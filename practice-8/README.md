@@ -5,14 +5,21 @@
 ```
 
 ## Реализация протокола Stop and Wait
+Сначала запускается сервер
+
+**Запуск сервера:**
+```bash
+./mvnw -q exec:java -Dexec.mainClass="org.example.rdt.server.ServerMain"
+```
+
 **Запуск клиента:**
 ```bash
 ./mvnw -q exec:java -Dexec.mainClass="org.example.rdt.client.ClientMain"
 ```
 Менять таймаут можно в коде
 
-
-**Запуск сервера:**
+## Контрольные суммы
+**Запуск примеров:**
 ```bash
-./mvnw -q exec:java -Dexec.mainClass="org.example.rdt.server.ServerMain"
+./mvnw -q exec:java -Dexec.mainClass="org.example.csum.Main"
 ```
