@@ -81,5 +81,6 @@ public class Client {
         var msg = MessageFormat.format("{0} {1}", id, new String("\r\n\r\n")).getBytes();
         var packet = new DatagramPacket(msg, 0, msg.length, InetAddress.getByName(host), port);
         SocketUtils.sendPacket(socket, packet);
+        executor.shutdownNow();
     }
 }
